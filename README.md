@@ -13,7 +13,7 @@ No API key is needed. Currently, the stop ID and WiFi credentials need to be con
 
 12 new departures are fetched every 3 minutes, and the departure times are updated every 10 seconds. If less departures than rows (6) are available, new departures are fetched immediately.
 
-The spacing adjusts
+The spacing adjusts dynamically on every update to make the most of the tiny screen.
 
 
 ## Setup
