@@ -22,7 +22,7 @@ POS = 21
 
 # --- Initialization ---
 
-led = Pin("LED", Pin.OUT)
+led = Pin("LED", Pin.OUT) # type: ignore
 
 i2c = I2C(
     0,
