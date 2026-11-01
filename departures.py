@@ -133,7 +133,7 @@ class DepartureBoard:
 
         time_now = int(time())
         self.departures = [dep for dep in self.departures if dep.update_eta(time_now) >= 0]
-        self.departures.sort(key=lambda dep: dep.eta)
+        self.departures.sort(key=lambda dep: (dep.eta_sec, dep.destination))
         return len(self.departures)
 
     def format_departures(self, lines=4, length=16) -> list[tuple[str, bool]]:
@@ -145,12 +145,12 @@ class DepartureBoard:
 
         for dep in current_deps:
             line_width = max(line_width, len(dep.line_number))
-            eta_width = max(eta_width, len(str(dep.eta)))
+            eta_width = max(eta_width, len(str(dep.eta_min)))
 
         out_lines = []
         for dep in current_deps:
             formatted = dep.format_line(length, line_width, eta_width)
-            out_lines.append((formatted, dep.eta == 0))
+            out_lines.append((formatted, dep.eta_min == 0))
 
         return out_lines
 
@@ -173,21 +173,18 @@ class Departure:
 
 
     def update_eta(self, time_now) -> int:
-        """Set and return eta based on given timestamp"""
+        """Set eta (seconds, minutes) and return eta (seconds) based on given timestamp"""
         eta_seconds = self.dep_time - time_now
 
-        # Departure is removed as soon is it has departed.
-        # With this logic, a departing connection is shown as deparing for ~30 seconds. At the moment of departure, it is removed.
-        # TODO: Check actual behavior of ZVV displays
+        self.eta_sec = eta_seconds
+        self.eta_min =  round(eta_seconds/60)
 
-        # TODO: Store eta in seconds for better accuracy
-        self.eta = round(eta_seconds/60) if eta_seconds >= 0 else -1
-        return self.eta
+        return self.eta_sec
 
     def format_line(self, length, line_width=2, eta_width=1):
         """Returns a single line nicely formatted with a fixed width."""
         dest_width = length - line_width - eta_width - 2
-        return f"{self.line_number:<{line_width}} {self.destination[:dest_width]:<{dest_width}} {self.eta:>{eta_width}}"
+        return f"{self.line_number:<{line_width}} {self.destination[:dest_width]:<{dest_width}} {self.eta_min:>{eta_width}}"
 
 
 if __name__ == "__main__":
